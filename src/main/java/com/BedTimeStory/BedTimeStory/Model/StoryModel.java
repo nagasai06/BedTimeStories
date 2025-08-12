@@ -11,15 +11,25 @@ public class StoryModel {
     private String story;
 
     private Theme theme;
+    private byte[] audio;
 
 
     public StoryModel() {
     }
 
-    public StoryModel(String id, String story, Theme theme) {
+    public StoryModel(String id, String story, Theme theme, byte[] audio) {
         this.id = id;
         this.story = story;
         this.theme = theme;
+        this.audio = audio;
+    }
+
+    public byte[] getAudio() {
+        return audio;
+    }
+
+    public void setAudio(byte[] audio) {
+        this.audio = audio;
     }
 
     public String getId() {

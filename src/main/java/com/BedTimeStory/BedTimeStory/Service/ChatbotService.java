@@ -8,8 +8,10 @@ import com.BedTimeStory.BedTimeStory.Repository.StoryRepo;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.openai.OpenAiAudioSpeechModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @Service
 public class ChatbotService {
@@ -19,10 +21,13 @@ public class ChatbotService {
 
     private final ChatClient chatClient;
 
-    ChatbotService(ChatClient.Builder chatClientBuilder) {
+    private OpenAiAudioSpeechModel audioSpeechModel;
+
+    ChatbotService(ChatClient.Builder chatClientBuilder, OpenAiAudioSpeechModel audioSpeechModel) {
+        this.audioSpeechModel=audioSpeechModel;
         this.chatClient = chatClientBuilder.build();
     }
-    public String askChatGPT(ChatRequest chatRequest) {
+    public byte[] askChatGPT(ChatRequest chatRequest) {
 
         String customPrompt = String.format("""
             kid name is %s and gender is %s age is %s years. 
@@ -38,10 +43,21 @@ public class ChatbotService {
                 .user(customPrompt)
                 .call()
                 .content();
+        byte[] audio = audioSpeechModel.call(story);
         StoryModel sm = new StoryModel();
         sm.setStory(story);
         sm.setTheme(chatRequest.getTheme());
+        sm.setAudio(audio);
         sRepo.save(sm);
-        return story;
+        return audio;
     }
+
+//    @PostMapping("/Story")
+//    public byte[] tts(String text) {
+//        return audioSpeechModel.call(text);
+//
+//
+//    }
+
+
 }

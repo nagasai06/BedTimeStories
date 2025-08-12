@@ -19,7 +19,7 @@ public class StoryController {
     }
 
     @PostMapping("/getStory")
-    public String getStory(@RequestBody ChatRequest chatRequest){
+    public byte[] getStory(@RequestBody ChatRequest chatRequest){
         return cbService.askChatGPT(chatRequest);
     }
 
