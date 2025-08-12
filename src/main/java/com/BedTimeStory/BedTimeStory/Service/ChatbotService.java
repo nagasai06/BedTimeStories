@@ -1,6 +1,7 @@
 package com.BedTimeStory.BedTimeStory.Service;
 
 import com.BedTimeStory.BedTimeStory.Dto.ChatRequest;
+import com.BedTimeStory.BedTimeStory.Dto.StoryDto;
 import com.BedTimeStory.BedTimeStory.Model.Gender;
 import com.BedTimeStory.BedTimeStory.Model.StoryModel;
 import com.BedTimeStory.BedTimeStory.Model.Theme;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class ChatbotService {
 
     @Autowired
+    GcsAudioService audioService;
+    @Autowired
     StoryRepo sRepo;
 
     private final ChatClient chatClient;
@@ -27,7 +30,7 @@ public class ChatbotService {
         this.audioSpeechModel=audioSpeechModel;
         this.chatClient = chatClientBuilder.build();
     }
-    public byte[] askChatGPT(ChatRequest chatRequest) {
+    public StoryDto askChatGPT(ChatRequest chatRequest) throws Exception {
 
         String customPrompt = String.format("""
             kid name is %s and gender is %s age is %s years. 
@@ -44,12 +47,19 @@ public class ChatbotService {
                 .call()
                 .content();
         byte[] audio = audioSpeechModel.call(story);
+        String audioUrl = audioService.uploadAudio(audio,"mp3");
+        StoryDto sd = new StoryDto();
+        //sd.setAudio(audio);
+        sd.setStory(story);
+        sd.setAudioUrl(audioUrl);
         StoryModel sm = new StoryModel();
         sm.setStory(story);
         sm.setTheme(chatRequest.getTheme());
-        sm.setAudio(audio);
+        sm.setAudioFormat("mp3");
+        sm.setAudioUrl(audioUrl);
+        sm.setAudioSize(audio.length);
         sRepo.save(sm);
-        return audio;
+        return sd;
     }
 
 //    @PostMapping("/Story")

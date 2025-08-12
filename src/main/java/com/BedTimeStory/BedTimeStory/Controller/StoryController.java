@@ -1,6 +1,7 @@
 package com.BedTimeStory.BedTimeStory.Controller;
 
 import com.BedTimeStory.BedTimeStory.Dto.ChatRequest;
+import com.BedTimeStory.BedTimeStory.Dto.StoryDto;
 import com.BedTimeStory.BedTimeStory.Service.ChatbotService;
 import com.BedTimeStory.BedTimeStory.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,12 @@ public class StoryController {
     }
 
     @PostMapping("/getStory")
-    public byte[] getStory(@RequestBody ChatRequest chatRequest){
-        return cbService.askChatGPT(chatRequest);
+    public StoryDto getStory(@RequestBody ChatRequest chatRequest){
+        try {
+            return cbService.askChatGPT(chatRequest);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @PostMapping("/saveUser")
